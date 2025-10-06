@@ -13,6 +13,26 @@ function nextHeroSlide() {
 
 setInterval(nextHeroSlide, 5000);
 
+// Animated button text rotation
+const buttonTexts = document.querySelectorAll('.btn-text');
+
+buttonTexts.forEach(btnText => {
+    const texts = JSON.parse(btnText.getAttribute('data-texts'));
+    let currentIndex = 0;
+    
+    setInterval(() => {
+        // Fade out
+        btnText.classList.add('fade-out');
+        
+        // Change text after fade out
+        setTimeout(() => {
+            currentIndex = (currentIndex + 1) % texts.length;
+            btnText.textContent = texts[currentIndex];
+            btnText.classList.remove('fade-out');
+        }, 300);
+    }, 2000);
+});
+
 // Carousel functionality
 const carouselCards = document.querySelectorAll('.service-card');
 const carouselIndicators = document.querySelectorAll('.carousel-indicator');
@@ -21,47 +41,58 @@ const nextBtn = document.querySelector('.carousel-btn.next');
 const carousel = document.querySelector('.services-carousel');
 let currentCarouselSlide = 0;
 
-function showCarouselSlide(index) {
+function showCarouselSlide(newIndex, direction) {
+    const oldIndex = currentCarouselSlide;
+    
+    // Remove all classes
     carouselCards.forEach(card => {
-        card.classList.remove('active', 'prev');
+        card.classList.remove('active', 'slide-left', 'slide-right');
     });
     carouselIndicators.forEach(ind => ind.classList.remove('active'));
 
-    if (carouselCards[currentCarouselSlide]) {
-        carouselCards[currentCarouselSlide].classList.add('prev');
+    // Calculate new index (infinite loop)
+    currentCarouselSlide = (newIndex + carouselCards.length) % carouselCards.length;
+
+    // Set the old card's exit direction
+    if (direction === 'next') {
+        carouselCards[oldIndex].classList.add('slide-left');
+        carouselCards[currentCarouselSlide].classList.add('slide-right');
+    } else {
+        carouselCards[oldIndex].classList.add('slide-right');
+        carouselCards[currentCarouselSlide].classList.add('slide-left');
     }
 
-    currentCarouselSlide = (index + carouselCards.length) % carouselCards.length;
-
-    carouselCards[currentCarouselSlide].classList.add('active');
-    carouselIndicators[currentCarouselSlide].classList.add('active');
-
+    // Activate new card after a brief moment
     setTimeout(() => {
-        carouselCards.forEach(card => card.classList.remove('prev'));
-    }, 600);
+        carouselCards[currentCarouselSlide].classList.remove('slide-left', 'slide-right');
+        carouselCards[currentCarouselSlide].classList.add('active');
+    }, 50);
+
+    carouselIndicators[currentCarouselSlide].classList.add('active');
 }
 
 if (prevBtn && nextBtn) {
     prevBtn.addEventListener('click', () => {
-        showCarouselSlide(currentCarouselSlide - 1);
+        showCarouselSlide(currentCarouselSlide - 1, 'prev');
     });
 
     nextBtn.addEventListener('click', () => {
-        showCarouselSlide(currentCarouselSlide + 1);
+        showCarouselSlide(currentCarouselSlide + 1, 'next');
     });
 }
 
 carouselIndicators.forEach((indicator, index) => {
     indicator.addEventListener('click', () => {
-        showCarouselSlide(index);
+        const direction = index > currentCarouselSlide ? 'next' : 'prev';
+        showCarouselSlide(index, direction);
     });
 });
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
-        showCarouselSlide(currentCarouselSlide - 1);
+        showCarouselSlide(currentCarouselSlide - 1, 'prev');
     } else if (e.key === 'ArrowRight') {
-        showCarouselSlide(currentCarouselSlide + 1);
+        showCarouselSlide(currentCarouselSlide + 1, 'next');
     }
 });
 
@@ -77,10 +108,10 @@ if (carousel) {
         touchEndX = e.changedTouches[0].screenX;
         
         if (touchEndX < touchStartX - 50) {
-            showCarouselSlide(currentCarouselSlide + 1);
+            showCarouselSlide(currentCarouselSlide + 1, 'next');
         }
         if (touchEndX > touchStartX + 50) {
-            showCarouselSlide(currentCarouselSlide - 1);
+            showCarouselSlide(currentCarouselSlide - 1, 'prev');
         }
     });
 }
