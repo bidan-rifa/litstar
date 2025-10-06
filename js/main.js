@@ -11,7 +11,7 @@ function nextHeroSlide() {
     showHeroSlide(heroCurrentSlide + 1);
 }
 
-setInterval(nextHeroSlide, 5000);
+setInterval(nextHeroSlide, 3000);
 
 // Animated button text rotation
 const buttonTexts = document.querySelectorAll('.btn-text');
@@ -30,7 +30,7 @@ buttonTexts.forEach(btnText => {
             btnText.textContent = texts[currentIndex];
             btnText.classList.remove('fade-out');
         }, 300);
-    }, 2000);
+    }, 3000);
 });
 
 // Carousel functionality
